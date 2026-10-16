@@ -13,12 +13,17 @@ Kismet devices REST API instead of the ADSB-specific C++ endpoint.
 
 ## What it does
 
-- Polls `devices/last-time/.../devices.json` (field-simplified, same
-  endpoint family probe-dashboard uses) and plots Wi-Fi devices at
-  `kismet.device.base.location` → `kismet.common.location.avg_loc`.
-- Markers are clustered with vendored `leaflet.markercluster` and
-  colored by signal strength (green ≥ −50 dBm → red < −80 dBm).
-- Click a marker for SSID, MAC, vendor, signal, channel, last-seen.
+- Polls `devices/last-time/.../devices.json` (field-simplified, with a
+  server-side `phyname` regex so only Wi-Fi devices come over the wire)
+  and plots them at `kismet.device.base.location` →
+  `kismet.common.location.avg_loc`.
+- Markers are canvas-rendered (`preferCanvas`, no DOM-per-marker lag)
+  and split into toggleable layers: Access Points (green), Clients
+  (blue), Bridged / Ad-Hoc / Other.
+- Click a marker for SSID, MAC, type, channel, encryption, signal,
+  last-seen.
+- The rig's GPS position is tracked live with an auto-follow toggle;
+  dragging the map disengages follow, like any nav app.
 - Markers unseen for 15 minutes are swept; polling pauses when the tab
   is hidden.
 - Tiles load from `httpd/tiles/{z}/{x}/{y}.png`, served by Kismet
@@ -58,11 +63,12 @@ shipped as a GitHub release asset into `httpd/tiles/`.
 ```
 manifest.conf            plugin manifest (js= module, relative path)
 Makefile                 install / userinstall / uninstall
+tools/
+  fetch_tiles.py         polite headless tile downloader (2 threads,
+                         identifying UA, resume-safe) for httpd/tiles/
 httpd/
-  js/wifi_map.js         the tab: polling, clustering, popups
-  js/leaflet.markercluster.js   vendored (Kismet ships Leaflet itself)
+  js/wifi_map.js         the tab: polling, layers, GPS follow, popups
   css/wifi_map.css
-  css/MarkerCluster.Default.css  vendored
   tiles/                 offline XYZ tiles (gitignored, see README inside)
 ```
 
