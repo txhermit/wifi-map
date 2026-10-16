@@ -1,0 +1,3 @@
+httpd/tiles/*
+!httpd/tiles/.gitkeep
+!httpd/tiles/README.md
